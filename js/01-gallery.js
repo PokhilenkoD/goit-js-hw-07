@@ -25,22 +25,32 @@ galleryParentEl.addEventListener('click', onClickGalleryElements);
 
 function onClickGalleryElements(event) {
   event.preventDefault();
-  event.target.src = event.target.dataset.source;
-  const instance = basicLightbox.create(`
+  if (event.target.nodeName === 'IMG') {
+    event.target.src = event.target.dataset.source;
+    const instance = basicLightbox.create(
+      `
         <img
           class="closeModal"
           src="${event.target.src}"
           alt="${event.target.alt}"
         />
-    `);
+    `,
+      {
+        onShow: instance => {
+          document.addEventListener('keydown', onCloseModalKey);
+        },
+        onClose: instance => {
+          document.removeEventListener('keydown', onCloseModalKey);
+        },
+      }
+    );
 
-  instance.show();
+    instance.show();
 
-  galleryParentEl.addEventListener('keydown', onCloseModalKey);
-  function onCloseModalKey(ev) {
-    if (ev.key === 'Escape') {
-      instance.close();
-      galleryParentEl.removeEventListener('keydown', onCloseModalKey);
+    function onCloseModalKey(ev) {
+      if (ev.key === 'Escape') {
+        instance.close();
+      }
     }
   }
 }
